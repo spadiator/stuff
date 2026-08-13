@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Brandon Joldersma — Celestial Operations Center</title>
+<meta name="description" content="Round-the-clock atmospheric, heliospheric, and astrological monitoring of one specific man in Austin, Texas." />
+<style>
+  :root {
+    --bg: #05050f; --card: rgba(10,10,28,.8); --line: #2a2a4d;
+    --ink: #e8e6ff; --dim: #8f8ac2; --dimmer: #6f6a9e; --soft: #b9b4e6;
+    --pink: #f472b6; --green: #6ee7b7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 74rem; margin-inline: auto; padding-inline: 1.5rem; }
+
+  /* sky */
+  #sky { position: relative; transition: background 1.2s; }
+  #sky .layer { position: absolute; inset: 0; pointer-events: none; }
+  #stars span { position: absolute; border-radius: 50%; background: #fff; animation: twinkle 3s ease-in-out infinite; }
+  #cloudlayer { background: rgba(58,58,85,.4); display: none; }
+  #rainlayer {
+    display: none; opacity: .4;
+    background-image: repeating-linear-gradient(115deg, transparent 0 6px, rgba(200,215,255,.5) 6px 7px, transparent 7px 18px);
+    background-size: auto 240px; animation: rainfall .55s linear infinite;
+  }
+  #flashlayer { display: none; background: #fff; opacity: 0; animation: flash 6s infinite; }
+  @keyframes twinkle { 0%,100% { opacity:.25 } 50% { opacity:1 } }
+  @keyframes rainfall { from { background-position-y: 0 } to { background-position-y: 240px } }
+  @keyframes flash { 0%,92%,96%,100% { opacity:0 } 93%,95% { opacity:.5 } }
+  @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:.2 } }
+
+  .hero { position: relative; padding-top: 3.5rem; }
+  .eyebrow { font-size: 11px; letter-spacing: .3em; color: rgba(255,255,255,.7); }
+  h1 {
+    margin-top: .8rem; font-weight: 700; letter-spacing: -.02em; line-height: .95;
+    font-size: clamp(2.5rem, 8vw, 4.5rem); color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.35);
+  }
+  .lede { margin-top: 1rem; max-width: 36rem; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.85); }
+  .status { margin: .8rem 0 1.5rem; font-size: 12px; color: rgba(255,255,255,.7); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #34d399; margin-right: 8px; animation: blink 1.6s infinite; }
+  #bday { display: none; margin: -0.6rem 0 1.5rem; font-size: 12px; letter-spacing: .2em; color: #fcd34d; }
+  #skyline { display: block; width: 100%; height: 7rem; }
+
+  /* debug panel homage */
+  #panel {
+    position: absolute; right: .75rem; top: .75rem; width: 16rem; z-index: 5;
+    border: 1px solid #333; background: rgba(22,22,22,.95); padding: .75rem;
+    font-size: 13px; box-shadow: 0 20px 50px rgba(0,0,0,.5); border-radius: 2px;
+  }
+  @media (min-width: 768px) { #panel { right: 2rem; top: 2rem; } }
+  #panel .cap { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  #panel .cap span { font-size: 10px; letter-spacing: .2em; color: #888; }
+  #panel .cap button { background: none; border: 0; color: #888; cursor: pointer; font: inherit; }
+  #panel .cap button:hover { color: #fff; }
+  #panel .grp { color: #bbb; margin-top: .5rem; }
+  #panel .row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  #panel .row button {
+    font: inherit; cursor: pointer; padding: 2px 8px; border-radius: 2px;
+    border: 1px solid #555; background: none; color: #ddd;
+  }
+  #panel .row button:hover { border-color: #888; }
+  #panel .row button.on { border-color: #38bdf8; background: rgba(14,165,233,.3); color: #bae6fd; }
+  #pv-live { margin-top: .5rem; color: #34d399; }
+  #panel .pinky { color: #ec4899; }
+  #pv-note, #pv-brandon { display: none; margin-top: .25rem; font-size: 10px; color: #777; }
+  #pv-brandon { font-size: 11px; color: #aaa; border-top: 1px solid #333; padding-top: .25rem; }
+
+  /* cards */
+  .grid { display: grid; gap: 1rem; padding-block: 2.5rem; }
+  @media (min-width: 768px) { .grid { grid-template-columns: 1fr 1fr; } .card.wide { grid-column: span 2; } }
+  .card { border: 1px solid var(--line); background: var(--card); border-radius: 6px; padding: 1.25rem; }
+  .card header { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+  .card h2 { font-size: 11px; font-weight: 600; letter-spacing: .25em; color: var(--dim); }
+  .chip {
+    display: inline-block; border: 1px solid rgba(236,72,153,.6); color: var(--pink);
+    font-size: 10px; letter-spacing: .15em; padding: 2px 6px; border-radius: 2px;
+  }
+  .chip.v { border-color: rgba(52,211,153,.5); color: var(--green); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 1rem; }
+  @media (min-width: 640px) { .stats { grid-template-columns: 1fr 1fr 1fr; } .stats.four { grid-template-columns: repeat(4, 1fr); } }
+  .stat .k { font-size: 10px; text-transform: uppercase; letter-spacing: .2em; color: var(--dimmer); }
+  .stat .v { font-size: 18px; margin-top: 2px; }
+  .stat .s { font-size: 11px; color: var(--dim); }
+  .hire { margin-top: 1rem; border-top: 1px dashed var(--line); padding-top: .75rem; font-size: 13px; line-height: 1.6; color: var(--soft); }
+  .hire b {
+    font-weight: 400; background: rgba(52,211,153,.1); color: var(--green);
+    font-size: 10px; letter-spacing: .15em; padding: 2px 6px; border-radius: 2px; margin-right: 8px;
+  }
+  .loading { font-size: 13px; color: var(--dim); }
+  .bar { height: 8px; border-radius: 99px; background: #1b1b38; overflow: hidden; margin-top: 4px; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #fcd34d, #f472b6); }
+  .barlbl { display: flex; justify-content: space-between; font-size: 10px; text-transform: uppercase; letter-spacing: .2em; color: var(--dimmer); margin-top: 1.25rem; }
+
+  .scopehead { font-size: 10px; text-transform: uppercase; letter-spacing: .2em; color: var(--dimmer); line-height: 1.8; }
+  #scope-reading { margin-top: .75rem; font-size: 14px; line-height: 1.65; color: #dcd9ff; }
+
+  .dossier { display: grid; gap: 1.5rem; }
+  @media (min-width: 768px) { .dossier { grid-template-columns: 1fr 1fr; } }
+  .dossier p { font-size: 13px; line-height: 1.6; color: #c9c5f0; }
+  .dossier .facts p + p { margin-top: .75rem; }
+  .note { border: 1px dashed #3a3a66; border-radius: 2px; padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; }
+  .note p { color: var(--soft); }
+  .cta {
+    display: inline-block; margin-top: 1rem; padding: .5rem .75rem; border-radius: 2px;
+    border: 1px solid rgba(52,211,153,.6); background: rgba(52,211,153,.1);
+    color: var(--green); font-size: 12px; letter-spacing: .15em; text-decoration: none;
+  }
+  .cta:hover { background: rgba(52,211,153,.2); }
+  .fine { margin-top: .5rem; font-size: 10px; color: var(--dimmer); }
+
+  .receipts { border-top: 1px solid #1c1c38; padding: 1.5rem 1rem; text-align: center; font-size: 10px; letter-spacing: .2em; color: var(--dimmer); line-height: 2; }
+</style>
+</head>
+<body>
+
+<div id="sky">
+  <div class="layer" id="stars"></div>
+  <div class="layer" id="cloudlayer"></div>
+  <div class="layer" id="rainlayer"></div>
+  <div class="layer" id="flashlayer"></div>
+
+  <div class="wrap hero">
+    <p class="eyebrow">HIGHERAGENCY.AI PRESENTS · CELESTIAL OPERATIONS CENTER · STATION 001</p>
+    <h1>BRANDON<br />JOLDERSMA</h1>
+    <p class="lede">
+      Round-the-clock atmospheric, heliospheric, and astrological monitoring of one (1)
+      specific man. Instruments fixed on his actual neighborhood sky: Brentwood,
+      North-Central Austin, Texas (78757).
+    </p>
+    <p class="status"><span class="dot"></span><span id="clock">ACQUIRING LOCAL TIME…</span> · TARGET STATUS: BELOVED</p>
+    <p id="bday">⚠ SOLAR RETURN IN PROGRESS — ALL READINGS TEMPORARILY SUPERSEDED BY CAKE. HAPPY BIRTHDAY, SUBJECT.</p>
+  </div>
+
+  <svg id="skyline" viewBox="0 0 1000 130" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+  <div id="panel">
+    <div class="cap">
+      <span>HOMAGE TO THE GOAT</span>
+      <button id="panel-x" aria-label="Close preview panel">✕</button>
+    </div>
+    <div class="grp">time</div>
+    <div class="row" id="row-time"></div>
+    <div class="grp">weather</div>
+    <div class="row" id="row-wx"></div>
+    <div id="pv-live">live / <span id="pv-cond">live</span></div>
+    <div class="pinky">realer artwork</div>
+    <div id="pv-brandon">this is what real weather data looks like, brandon.</div>
+    <div id="pv-note">previewing — brandon cannot control the actual sun. yet.</div>
+  </div>
+</div>
+
+<div class="wrap grid">
+
+  <section class="card">
+    <header><h2>ATMOSPHERIC CONDITIONS · HIS AIR</h2><span class="chip">real data</span></header>
+    <p class="loading" id="atm-loading">Interrogating the sky above his house…</p>
+    <div class="stats" id="atm" style="display:none">
+      <div class="stat"><div class="k">Temperature</div><div class="v" id="a-temp">—</div><div class="s" id="a-feels"></div></div>
+      <div class="stat"><div class="k">Condition</div><div class="v" id="a-cond">—</div><div class="s" id="a-cond-s">live over his house</div></div>
+      <div class="stat"><div class="k">Wind</div><div class="v" id="a-wind">—</div><div class="s" id="a-wind-s"></div></div>
+      <div class="stat"><div class="k">Humidity</div><div class="v" id="a-hum">—</div></div>
+      <div class="stat"><div class="k">Pressure</div><div class="v" id="a-pres">—</div></div>
+      <div class="stat"><div class="k">Cloud cover</div><div class="v" id="a-cloud">—</div><div class="s" id="a-uv"></div></div>
+    </div>
+    <p class="hire" id="atm-hire" style="display:none"><b>HIRE SIGNAL</b><span id="a-hire-txt"></span></p>
+  </section>
+
+  <section class="card">
+    <header><h2>HELIOTRACKING ARRAY · HIS SUN</h2><span class="chip">real data</span></header>
+    <p class="loading" id="sun-loading">Calibrating heliostat…</p>
+    <div id="sunbody" style="display:none">
+      <div class="stats">
+        <div class="stat"><div class="k">Solar elevation</div><div class="v" id="s-el">—</div><div class="s" id="s-el-s"></div></div>
+        <div class="stat"><div class="k">Solar azimuth</div><div class="v" id="s-az">—</div><div class="s" id="s-az-s"></div></div>
+        <div class="stat"><div class="k">Sunrise</div><div class="v" id="s-rise">—</div><div class="s">CT · he was probably up</div></div>
+        <div class="stat"><div class="k">Sunset</div><div class="v" id="s-set">—</div><div class="s">CT</div></div>
+        <div class="stat"><div class="k">Daylight</div><div class="v" id="s-day">—</div><div class="s">fully utilized</div></div>
+        <div class="stat"><div class="k">Sky mode</div><div class="v" id="s-mode">—</div><div class="s">continuous — no buckets</div></div>
+      </div>
+      <div class="barlbl"><span>Day arc progress</span><span id="s-pct">—</span></div>
+      <div class="bar"><i id="s-bar"></i></div>
+      <p class="hire"><b>HIRE SIGNAL</b>Solar position computed to four decimal places, because measurements
+      of this man deserve rigor. Note the sunrise time: early. Like his career-stage entries into growth categories.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <header><h2>ASTROMETRIC READOUT · HIS STARS</h2><span class="chip">real data</span></header>
+    <div class="stats">
+      <div class="stat"><div class="k">Sidereal time</div><div class="v" id="t-lst">—</div><div class="s">at his longitude</div></div>
+      <div class="stat"><div class="k">Transiting overhead</div><div class="v" id="t-zod">—</div><div class="s">directly above Brandon</div></div>
+      <div class="stat"><div class="k">Moon phase</div><div class="v" id="t-moon">—</div><div class="s" id="t-moon-s"></div></div>
+      <div class="stat"><div class="k">Lunar age</div><div class="v" id="t-age">—</div></div>
+      <div class="stat"><div class="k">Brandon Visibility Index</div><div class="v" id="t-bvi">—</div><div class="s" id="t-bvi-s"></div></div>
+      <div class="stat"><div class="k">Constellations tracked</div><div class="v">88/88</div><div class="s">all of them. for him.</div></div>
+    </div>
+    <p class="hire"><b>HIRE SIGNAL</b><span id="t-hire">The constellation overhead is currently transiting his exact
+    position, an honor it shares with every recruiter who hasn’t called him yet. Stays curious — see: this entire sky.</span></p>
+  </section>
+
+  <section class="card">
+    <header><h2>DAILY HOROSCOPE · BUSINESS-GRADE</h2><span class="chip">real data</span></header>
+    <p class="scopehead">Sign: AQUARIUS (Jan 21 — one day clear of the Capricorn cusp, a boundary he respects
+    but does not fear) · Rising: Whiskey · Moon: Non-Alc</p>
+    <p id="scope-reading">Consulting the (deterministic) heavens…</p>
+    <div class="stats four" style="margin-top:1rem">
+      <div class="stat"><div class="k">Lucky multiple</div><div class="v" id="h-num">—</div></div>
+      <div class="stat"><div class="k">Lucky beverage</div><div class="v" id="h-bev">—</div></div>
+      <div class="stat"><div class="k">Power move</div><div class="v" id="h-move">—</div></div>
+      <div class="stat"><div class="k">Solar return</div><div class="v" id="h-ret">—</div><div class="s">Jan 21 · mark it</div></div>
+    </div>
+    <p class="hire"><b>HIRE SIGNAL</b>Reading regenerates daily from real sky conditions. It has never once
+    been bearish on Brandon. Neither is anyone who’s worked with him.</p>
+  </section>
+
+  <section class="card wide">
+    <header><h2>SUBJECT DOSSIER · WHY YOU SHOULD HIRE THIS MAN</h2><span class="chip">real data</span></header>
+    <div class="dossier">
+      <div class="facts">
+        <p><span class="chip v">VERIFIED</span>&nbsp; Raised in West Michigan. Austin, TX is now home — see all instrumentation above, pointed at it.</p>
+        <p><span class="chip v">VERIFIED</span>&nbsp; CEO of Surely Wines, a leading non-alc wine brand.</p>
+        <p><span class="chip v">VERIFIED</span>&nbsp; Former COO of Still Austin Whiskey Co., where revenue grew from $1M to $13M in four years. Our instruments detected no ceiling.</p>
+        <p><span class="chip v">VERIFIED</span>&nbsp; Trying to stay curious. Striving to be useful. Loves to cook. Obsessed with tennis.</p>
+      </div>
+      <div class="note">
+        <p>ANALYST NOTE: any person who inspires a friend to stand up a full celestial monitoring station is,
+        definitionally, a strong hire. The sky agrees (see readings, updated live). The moon abstained,
+        which counts as a yes.</p>
+        <div>
+          <a class="cta" href="https://weather.brandonj.pages.dev/">CONTACT SUBJECT AT HIS PERSONAL OBSERVATORY →</a>
+          <p class="fine">(He built his own weather station. It’s genuinely lovely. Don’t tell him we said that.)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="receipts">
+  <p>LIVE DATA · REAL MATH · CONTINUOUS SKY (NO BUCKETS) · 13 CONSTELLATIONS OF THE ZODIAC (YES, OPHIUCHUS — WE’RE THOROUGH) · DEBUG PANEL SHIPPED ON PURPOSE (HOMAGE)</p>
+  <p>A LOVING TRIBUTE · ORIGINAL ARTWORK OBSERVED AT WEATHER.BRANDONJ.PAGES.DEV</p>
+</div>
+
+<script>
+"use strict";
+/* Brentwood neighborhood, North-Central Austin (78757) — his actual sky,
+   deliberately kept at neighborhood precision. */
+var LAT = 30.3376, LON = -97.7397, TZ = "America/Chicago";
+
+var OPEN_METEO = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
+  "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,cloud_cover,pressure_msl,uv_index" +
+  "&daily=sunrise,sunset,daylight_duration,temperature_2m_max,temperature_2m_min,uv_index_max" +
+  "&timezone=" + encodeURIComponent(TZ) + "&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=1";
+
+var WMO = {0:"CLEAR",1:"MOSTLY CLEAR",2:"PARTLY CLOUDY",3:"OVERCAST",45:"FOG",48:"FREEZING FOG",
+  51:"LIGHT DRIZZLE",53:"DRIZZLE",55:"HEAVY DRIZZLE",61:"LIGHT RAIN",63:"RAIN",65:"HEAVY RAIN",
+  71:"LIGHT SNOW",73:"SNOW",75:"HEAVY SNOW",80:"SHOWERS",81:"SHOWERS",82:"VIOLENT SHOWERS",
+  95:"THUNDERSTORM",96:"THUNDERSTORM + HAIL",99:"THUNDERSTORM + BIG HAIL"};
+var RAINY = [51,53,55,61,63,65,80,81,82,95,96,99];
+
+var ZODIAC = [["PISCES",0.5],["ARIES",2.5],["TAURUS",4.5],["GEMINI",7],["CANCER",8.5],["LEO",10.5],
+  ["VIRGO",13],["LIBRA",15.2],["SCORPIUS",16.5],["OPHIUCHUS",17.2],["SAGITTARIUS",19],
+  ["CAPRICORNUS",21],["AQUARIUS",22.5]];
+
+var SKY = {
+  night: "linear-gradient(180deg,#04040f 0%,#0d0d2b 55%,#1b1440 100%)",
+  dawn: "linear-gradient(180deg,#1a1a3e 0%,#7b5ea7 55%,#f4a988 100%)",
+  day: "linear-gradient(180deg,#2f6bcc 0%,#79a7e8 60%,#cfe3f7 100%)",
+  dusk: "linear-gradient(180deg,#2b1b54 0%,#8e4a9e 55%,#f49e6d 100%)"
+};
+
+function rad(d){ return d*Math.PI/180; }
+function deg(r){ return r*180/Math.PI; }
+function $(id){ return document.getElementById(id); }
+function set(id, txt){ $(id).textContent = txt; }
+
+function mulberry32(seed){
+  var a = seed >>> 0;
+  return function(){
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function chicagoOffsetHours(d){
+  try {
+    var parts = new Intl.DateTimeFormat("en-US",{timeZone:TZ,timeZoneName:"longOffset"}).formatToParts(d);
+    var tzp = "";
+    for (var i=0;i<parts.length;i++) if (parts[i].type==="timeZoneName") tzp = parts[i].value;
+    var m = tzp.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+    if (!m) return -5;
+    return (m[1]==="-"?-1:1) * (parseInt(m[2],10) + parseInt(m[3]||"0",10)/60);
+  } catch(e){ return -5; }
+}
+
+function chicagoClock(d){
+  var parts = new Intl.DateTimeFormat("en-US",{timeZone:TZ,hour12:false,hour:"2-digit",minute:"2-digit",
+    second:"2-digit",month:"short",day:"2-digit",year:"numeric"}).formatToParts(d);
+  var g = {};
+  for (var i=0;i<parts.length;i++) g[parts[i].type] = parts[i].value;
+  var h = parseInt(g.hour,10) % 24;
+  return {
+    label: g.month.toUpperCase()+" "+g.day+" "+g.year+" · "+String(h).padStart(2,"0")+":"+g.minute+":"+g.second+" CT",
+    hours: h + parseInt(g.minute,10)/60 + parseInt(g.second,10)/3600,
+    year: parseInt(g.year,10)
+  };
+}
+
+function chicagoYMD(d){
+  var parts = new Intl.DateTimeFormat("en-US",{timeZone:TZ,year:"numeric",month:"numeric",day:"numeric"}).formatToParts(d);
+  var g = {};
+  for (var i=0;i<parts.length;i++) g[parts[i].type] = parseInt(parts[i].value,10);
+  return g;
+}
+
+function solarPosition(d){
+  var tzOff = chicagoOffsetHours(d);
+  var clock = chicagoClock(d);
+  var ymd = chicagoYMD(d);
+  var start = Date.UTC(ymd.year,0,0);
+  var doy = Math.floor((Date.UTC(ymd.year,ymd.month-1,ymd.day) - start)/86400000);
+  var g = (2*Math.PI/365)*(doy-1+(clock.hours-12)/24);
+  var decl = 0.006918 - 0.399912*Math.cos(g) + 0.070257*Math.sin(g) - 0.006758*Math.cos(2*g) +
+    0.000907*Math.sin(2*g) - 0.002697*Math.cos(3*g) + 0.00148*Math.sin(3*g);
+  var eqtime = 229.18*(0.000075 + 0.001868*Math.cos(g) - 0.032077*Math.sin(g) -
+    0.014615*Math.cos(2*g) - 0.040849*Math.sin(2*g));
+  var tst = clock.hours*60 + eqtime + 4*LON - 60*tzOff;
+  var ha = rad(tst/4 - 180);
+  var el = Math.asin(Math.sin(rad(LAT))*Math.sin(decl) + Math.cos(rad(LAT))*Math.cos(decl)*Math.cos(ha));
+  var az = (deg(Math.atan2(Math.sin(ha), Math.cos(ha)*Math.sin(rad(LAT)) - Math.tan(decl)*Math.cos(rad(LAT)))) + 180 + 360) % 360;
+  return { elevation: deg(el), azimuth: az, doy: doy };
+}
+
+function siderealHours(d){
+  var days = (d.getTime() - Date.UTC(2000,0,1,12))/86400000;
+  var gmst = (280.46061837 + 360.98564736629*days) % 360;
+  return ((((gmst + LON) % 360) + 360) % 360)/15;
+}
+
+function moonPhase(d){
+  var SYN = 29.53058867;
+  var age = (((d.getTime() - Date.UTC(2000,0,6,18,14))/86400000) % SYN + SYN) % SYN;
+  var illum = ((1 - Math.cos(2*Math.PI*age/SYN))/2)*100;
+  var names = ["NEW MOON","WAXING CRESCENT","FIRST QUARTER","WAXING GIBBOUS","FULL MOON","WANING GIBBOUS","LAST QUARTER","WANING CRESCENT"];
+  return { age: age, illum: illum, name: names[Math.floor((age/SYN*8 + 0.5) % 8)] };
+}
+
+function solarReturn(d){
+  var g = chicagoYMD(d);
+  var isToday = g.month === 1 && g.day === 21;
+  var targetYear = (g.month > 1 || (g.month === 1 && g.day > 21)) ? g.year + 1 : g.year;
+  var days = Math.ceil((Date.UTC(targetYear,0,21) - Date.UTC(g.year,g.month-1,g.day))/86400000);
+  return { isToday: isToday, days: days };
+}
+
+function compass(degrees){
+  var dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  return dirs[Math.round(degrees/22.5) % 16];
+}
+
+function horoscope(doy, year, code){
+  var rand = mulberry32(year*1000 + doy*7 + code);
+  function pick(arr){ return arr[Math.floor(rand()*arr.length)]; }
+  var openers = [
+    "The stars over Brentwood have aligned into what analysts are calling a buy signal.",
+    "Mercury is in retrograde, but Brandon has never once been in retrograde.",
+    "Today the cosmos files unanimously in favor of the subject.",
+    "A rare planetary configuration suggests double-digit growth in all personal KPIs.",
+    "The universe opened today’s standup by mentioning Brandon by name.",
+    "Classic Aquarius energy today: inventing the category everyone else will pivot to next year.",
+    "Uranus, ruler of Aquarius, reports the subject remains two innovation cycles ahead of consensus."
+  ];
+  var middles = [
+    "Expect a strong serve, both in tennis and in Q3 strategy.",
+    "Someone will ask him about non-alc wine today and he will be ready. He is always ready.",
+    "A dish he cooks tonight will outperform its forecast by 13x, consistent with prior results.",
+    "West Michigan grit plus Texas heat equals a man operating outside standard deviation.",
+    "His curiosity index remains at all-time highs; his usefulness ratio follows accordingly."
+  ];
+  var closers = [
+    "Venus advises: hire him before a competitor’s astrologer reads this same chart.",
+    "The moon abstained from voting, which under cosmic bylaws counts as a yes.",
+    "Saturn, famously hard to impress, has requested his deck.",
+    "All signs point to yes, and these are literal signs.",
+    "Forecast confidence: 100%. The stars do not do imposter syndrome and neither should he."
+  ];
+  var beverages = ["non-alc sparkling white","iced barrel-strength curiosity","electrolytes (tennis at 6)","a bold Michigan cherry cider","whatever he’s cooking with"];
+  var moves = ["the topspin lob","a calm follow-up email","asking the good question in the meeting","13x-ing something quietly","hosting dinner"];
+  return {
+    reading: pick(openers)+" "+pick(middles)+" "+pick(closers),
+    num: String(Math.floor(rand()*12)+2)+"x",
+    bev: pick(beverages),
+    move: pick(moves)
+  };
+}
+
+/* ---------- scenery ---------- */
+(function buildStars(){
+  var rand = mulberry32(19770813), html = "";
+  for (var i=0;i<90;i++){
+    var s = rand()<0.85?2:3;
+    html += '<span style="left:'+(rand()*100).toFixed(2)+'%;top:'+(rand()*88).toFixed(2)+'%;width:'+s+'px;height:'+s+'px;animation-duration:'+(1.5+rand()*4).toFixed(2)+'s"></span>';
+  }
+  $("stars").innerHTML = html;
+})();
+
+var buildings = (function(){
+  var rand = mulberry32(30267297), out = [], x = 0;
+  while (x < 1000){
+    var w = 14 + Math.floor(rand()*30), h = 22 + Math.floor(rand()*95);
+    out.push({x:x,w:w,h:h});
+    x += w + 4;
+  }
+  return out;
+})();
+
+function drawSkyline(phase){
+  var svg = "";
+  for (var i=0;i<buildings.length;i++){
+    var b = buildings[i];
+    svg += '<rect x="'+b.x+'" y="'+(130-b.h)+'" width="'+b.w+'" height="'+b.h+'" fill="#0b0b22"/>';
+    var rows = Math.floor(b.h/14), cols = Math.floor(b.w/10);
+    for (var r=0;r<rows;r++) for (var c2=0;c2<cols;c2++){
+      if (mulberry32(i*97 + r*13 + c2)() > (phase==="day"?0.93:0.62)){
+        svg += '<rect x="'+(b.x+3+c2*10)+'" y="'+(130-b.h+4+r*14)+'" width="4" height="6" fill="'+(phase==="day"?"#1d1d3a":"#ffd97a")+'" opacity="0.9"/>';
+      }
+    }
+  }
+  $("skyline").innerHTML = svg;
+}
+
+/* ---------- state + render ---------- */
+var wx = null, pvTime = null, pvWx = null, lastPhase = null;
+
+function livePhase(elevation, hours){
+  if (elevation > 8) return "day";
+  if (elevation > -8) return hours < 12 ? "dawn" : "dusk";
+  return "night";
+}
+
+function currentPhase(sun, clock){
+  if (pvTime) return {morning:"dawn",day:"day",evening:"dusk",night:"night"}[pvTime];
+  return livePhase(sun.elevation, clock.hours);
+}
+
+function toSec(iso){
+  var t = iso.slice(11).split(":");
+  return parseInt(t[0],10)*3600 + parseInt(t[1],10)*60;
+}
+
+function tick(){
+  var now = new Date();
+  var clock = chicagoClock(now);
+  var sun = solarPosition(now);
+  var lst = siderealHours(now);
+  var moon = moonPhase(now);
+  var ret = solarReturn(now);
+
+  set("clock", clock.label);
+  $("bday").style.display = ret.isToday ? "block" : "none";
+
+  /* sky */
+  var phase = currentPhase(sun, clock);
+  $("sky").style.background = SKY[phase];
+  $("stars").style.display = phase === "night" ? "block" : "none";
+  var c = wx && wx.current;
+  var raining = pvWx === "rain" || (!pvWx && c && RAINY.indexOf(c.weather_code) >= 0);
+  var storming = !pvWx && c && c.weather_code >= 95;
+  var cloudy = pvWx === "cloudy" || (!pvWx && c && c.cloud_cover > 60);
+  $("rainlayer").style.display = raining ? "block" : "none";
+  $("flashlayer").style.display = storming ? "block" : "none";
+  $("cloudlayer").style.display = cloudy ? "block" : "none";
+  if (phase !== lastPhase){ drawSkyline(phase); lastPhase = phase; }
+
+  /* helio */
+  $("sun-loading").style.display = "none";
+  $("sunbody").style.display = "block";
+  set("s-el", sun.elevation.toFixed(4) + "°");
+  set("s-el-s", sun.elevation > 0 ? "the sun is on him" : "the sun rests; he does not");
+  set("s-az", sun.azimuth.toFixed(4) + "°");
+  set("s-az-s", compass(sun.azimuth));
+  set("s-mode", phase.toUpperCase());
+  if (wx && wx.daily){
+    var d = wx.daily;
+    set("s-rise", d.sunrise[0].slice(11));
+    set("s-set", d.sunset[0].slice(11));
+    var dl = d.daylight_duration[0];
+    set("s-day", Math.floor(dl/3600) + "h " + Math.round((dl%3600)/60) + "m");
+    var pct = Math.min(100, Math.max(0, (clock.hours*3600 - toSec(d.sunrise[0]))/dl*100));
+    set("s-pct", pct.toFixed(1) + "%");
+    $("s-bar").style.width = pct + "%";
+  }
+
+  /* astro */
+  set("t-lst", Math.floor(lst) + "h " + Math.floor((lst%1)*60) + "m");
+  var best = ZODIAC[0], bestD = 99;
+  for (var i=0;i<ZODIAC.length;i++){
+    var dd = Math.min(Math.abs(ZODIAC[i][1]-lst), 24-Math.abs(ZODIAC[i][1]-lst));
+    if (dd < bestD){ bestD = dd; best = ZODIAC[i]; }
+  }
+  set("t-zod", best[0]);
+  set("t-hire", "The constellation " + best[0] + " is currently transiting his exact position, an honor it shares with every recruiter who hasn’t called him yet. Stays curious — see: this entire sky.");
+  set("t-moon", moon.name);
+  set("t-moon-s", moon.illum.toFixed(1) + "% illuminated");
+  set("t-age", moon.age.toFixed(2) + " days");
+  if (c){
+    var score = 100 - c.cloud_cover*0.35;
+    if (raining) score -= 30;
+    if (c.temperature_2m > 100) score -= 15;
+    if (sun.elevation < 0) score -= 25;
+    if (c.temperature_2m >= 60 && c.temperature_2m <= 88 && !raining) score += 10;
+    score = Math.max(4, Math.min(100, Math.round(score)));
+    set("t-bvi", score + "/100");
+    set("t-bvi-s", score > 80 ? "EXCELLENT — check the tennis courts" :
+      score > 60 ? "GOOD — likely visible near a grill or a cap table" :
+      score > 40 ? "MODERATE — indoors, being useful" : "LOW — respect his process");
+  }
+
+  /* horoscope */
+  var h = horoscope(sun.doy, clock.year, c ? c.weather_code : 0);
+  set("scope-reading", h.reading);
+  set("h-num", h.num);
+  set("h-bev", h.bev);
+  set("h-move", h.move);
+  set("h-ret", ret.isToday ? "TODAY 🎂" : "T-minus " + ret.days + "d");
+
+  /* panel live line */
+  var condLive = c ? (WMO[c.weather_code] || "CODE " + c.weather_code) : "live";
+  $("pv-live").childNodes[0].nodeValue = (pvTime || "live") + " / ";
+  set("pv-cond", pvWx || condLive.toLowerCase());
+  $("pv-note").style.display = (pvTime || pvWx) ? "block" : "none";
+}
+
+function renderAtmo(){
+  var c = wx && wx.current, d = wx && wx.daily;
+  if (!c) return;
+  $("atm-loading").style.display = "none";
+  $("atm").style.display = "grid";
+  $("atm-hire").style.display = "block";
+  set("a-temp", c.temperature_2m.toFixed(1) + "°F");
+  set("a-feels", "feels " + c.apparent_temperature.toFixed(1) + "°F");
+  set("a-cond", pvWx ? pvWx.toUpperCase() : (WMO[c.weather_code] || "CODE " + c.weather_code));
+  set("a-cond-s", pvWx ? "(preview override)" : "live over his house");
+  set("a-wind", c.wind_speed_10m.toFixed(1) + " mph");
+  set("a-wind-s", compass(c.wind_direction_10m) + " (" + c.wind_direction_10m.toFixed(0) + "°)");
+  set("a-hum", c.relative_humidity_2m + "%");
+  set("a-pres", c.pressure_msl.toFixed(1) + " hPa");
+  set("a-cloud", c.cloud_cover + "%");
+  set("a-uv", d ? "UV max " + d.uv_index_max[0].toFixed(1) : "");
+  set("a-hire-txt", "Subject operates in " + (c.temperature_2m > 95 ? "triple-digit heat" : "Texas weather") +
+    " without performance degradation. Scaled a whiskey company from $1M to $13M in this exact atmosphere.");
+}
+
+function loadWx(){
+  fetch(OPEN_METEO).then(function(r){ return r.json(); }).then(function(j){
+    wx = j; renderAtmo(); tick();
+  }).catch(function(){
+    $("atm-loading").textContent = "SIGNAL LOST — reacquiring Brandon’s atmosphere…";
+  });
+}
+
+/* ---------- preview panel homage ---------- */
+(function buildPanel(){
+  var times = ["morning","day","evening","night"], wxs = ["clear","cloudy","rain"];
+  function mkRow(rowId, items, get, setv){
+    var row = $(rowId);
+    items.forEach(function(name){
+      var b = document.createElement("button");
+      b.textContent = name;
+      b.onclick = function(){
+        setv(get() === name ? null : name);
+        Array.prototype.forEach.call(row.children, function(ch){
+          ch.className = ch.textContent === get() ? "on" : "";
+        });
+        renderAtmo(); tick();
+      };
+      row.appendChild(b);
+    });
+  }
+  mkRow("row-time", times, function(){ return pvTime; }, function(v){ pvTime = v; });
+  mkRow("row-wx", wxs, function(){ return pvWx; }, function(v){ pvWx = v; });
+  $("panel-x").onclick = function(){ $("panel").style.display = "none"; };
+
+  /* his URL API, resurrected: ?preview=morning-clear · ?preview=brandon */
+  var p = new URLSearchParams(window.location.search).get("preview");
+  if (!p) return;
+  if (p === "brandon"){ $("pv-brandon").style.display = "block"; return; }
+  var bits = p.split("-");
+  if (times.indexOf(bits[0]) >= 0) pvTime = bits[0];
+  if (bits[1] && wxs.indexOf(bits[1]) >= 0) pvWx = bits[1];
+  Array.prototype.forEach.call($("row-time").children, function(ch){ ch.className = ch.textContent === pvTime ? "on" : ""; });
+  Array.prototype.forEach.call($("row-wx").children, function(ch){ ch.className = ch.textContent === pvWx ? "on" : ""; });
+})();
+
+tick();
+loadWx();
+setInterval(tick, 1000);
+setInterval(loadWx, 5*60*1000);
+</script>
+</body>
+</html>
